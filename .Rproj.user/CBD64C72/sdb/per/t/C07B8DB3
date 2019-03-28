@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' predict makes a PredictionResponse for Jaqpot\n#' @param dataset\n#' @param rawModel\n#' @param additionalInfo\n\n\npredictgeneric.lm.glm <- function(dataset, rawModel, additionalInfo){\n  feats <- colnames(dataset$dataEntry$values)\n  rows_data <- length(dataset$dataEntry$values[,2])\n  df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))\n  for(i in feats){\n    fe <- additionalInfo$independentFeatures[i][[1]]\n    feval <- dataset$dataEntry$values[i][,1]\n    df[fe] <- feval\n  }\n  mod <- unserialize(base64_dec(rawModel))\n  model <- mod$MODEL\n  predFeat <- additionalInfo$predictedFeatures[1][[1]]\n  predictions <- predict(model, df)\n  for(i in 1:length(predictions)){\n    prediction<- data.frame(predictions[i])\n    colnames(prediction)<- predFeat\n    if(i==1){lh_preds<- list(unbox(prediction))\n    }else{\n      lh_preds[[i]]<- unbox(prediction)\n    }\n  }\n  datpred <-list(predictions=lh_preds)\n  return(datpred)\n}\n",
+    "created" : 1544543361128.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3568874407",
+    "id" : "C07B8DB3",
+    "lastKnownWriteTime" : 1544543275,
+    "last_content_update" : 1544543275,
+    "path" : "~/Jaqpot/GenericR/R/predictgenericlmglm.R",
+    "project_path" : "R/predictgenericlmglm.R",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

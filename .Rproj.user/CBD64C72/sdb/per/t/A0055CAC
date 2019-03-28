@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "Package: GenericR\nType: Package\nTitle: GenericR Jaqpot\nVersion: 0.1.0\nAuthor: Pantelis Karatzas\nMaintainer: The package maintainer <pantelispanka@gmail.com>\nDescription: GenericR server, genericquickpredict takes a quickPredictResponse and returns prediction\nLicense: What license is it under?\nEncoding: UTF-8\nLazyData: true\nRoxygenNote: 6.0.1\nDepends: jsonlite\n",
+    "created" : 1531522124602.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "114355334",
+    "id" : "A0055CAC",
+    "lastKnownWriteTime" : 1531522168,
+    "last_content_update" : 1531522168413,
+    "path" : "~/Jaqpot/GenericR/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "dcf"
+}
