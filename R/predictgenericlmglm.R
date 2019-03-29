@@ -5,13 +5,17 @@
 
 
 predictgeneric.lm.glm <- function(dataset, rawModel, additionalInfo){
-  feats <- colnames(dataset$dataEntry$values)
+  feat.keys <-  dataset$features$key
+  feat.names <- dataset$features$names
+  feat.names <- as.vector(unlist(lapply(feat.names, as.character)))
+  key.match <- data.frame(cbind(feat.keys, feat.names), stringAsFactors = FALSE)
+  
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
-  for(i in feats){
-    fe <- additionalInfo$independentFeatures[i][[1]]
+
+  for(key in feat.keys){
     feval <- dataset$dataEntry$values[i][,1]
-    df[fe] <- feval
+    df[key.match[key.match$feat.keys == i, 2]] <- feval
   }
   mod <- unserialize(base64_dec(rawModel))
   model <- mod$MODEL
