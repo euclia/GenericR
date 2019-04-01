@@ -4,7 +4,7 @@
 #' @param additionalInfo
 
 
-predictgeneric.lm.glm <- function(dataset, rawModel, additionalInfo){
+PredictgenericLmGlm <- function(dataset, rawModel, additionalInfo){
   feat.keys <-  dataset$features$key
   feat.names <- dataset$features$names
   feat.names <- as.vector(unlist(lapply(feat.names, as.character)))
