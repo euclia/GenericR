@@ -11,9 +11,8 @@ predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   feat.names <- dataset$features$name
   # Create a dataframe that includes the feature key and the corresponding name
   key.match <- data.frame(cbind(feat.keys, feat.names))
+  # Convert factor to string (feat.names is converted factor by data.frame())
   key.match[] <- lapply(key.match, as.character)
-
-
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
