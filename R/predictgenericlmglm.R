@@ -34,9 +34,9 @@ predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat
-    if(i==1){lh_preds<- list(unbox(prediction))
+    if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
-      lh_preds[[i]]<- unbox(prediction)
+      lh_preds[[i]]<- jsonlite::unbox(prediction)
     }
   }
   datpred <-list(predictions=lh_preds)
