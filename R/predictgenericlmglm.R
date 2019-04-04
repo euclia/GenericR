@@ -9,10 +9,10 @@ predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
   feat.names <- dataset$features$name
-  # Convert names from a factor list to a vector of characters
-  feat.names <- as.vector(unlist(lapply(feat.names, as.character)))
   # Create a dataframe that includes the feature key and the corresponding name
-  key.match <- data.frame(cbind(feat.keys, feat.names), stringAsFactors = FALSE)
+  key.match <- data.frame(cbind(feat.keys, feat.names))
+  key.match[] <- lapply(key.match, as.character)
+
   
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
