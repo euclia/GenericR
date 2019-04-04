@@ -31,11 +31,16 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     initial_concentration[i] = df[[con]]
   }
   
-  cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
+  if (covmodel != NULL){
+    cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
+    params<-c(covmodel(cov.pars), dose, t_inf)
+  } else {
+    params<-c(dose, t_inf)
+  }
+                        
   t_inf <- df$infusion_time
   dose <- df$dose
   
-  params<-c(covmodel(cov.pars), dose, t_inf)
   sample_time <- seq(df$time.start , df$time.end, df$time.by)  # in hours
   solution <- deSolve::ode(y = initial_concentration, times = sample_time, func = odemodel, parms = params)
 
