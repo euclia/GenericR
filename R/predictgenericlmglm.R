@@ -24,7 +24,7 @@ predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
   # Unserialize the model
-  mod <- unserialize(base64_dec(rawModel))
+  mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
