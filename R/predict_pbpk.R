@@ -42,9 +42,9 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   for(i in 1:dim(solution)[1]){
     prediction<- data.frame(t(solution[i,]))
     colnames(prediction)<- c("time", comp)
-    if(i==1){lh_preds<- list(unbox(prediction))
+    if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
-      lh_preds[[i]]<- unbox(prediction)
+      lh_preds[[i]]<- jsonlite::unbox(prediction)
     }
   }
   datpred <-list(predictions=lh_preds)
