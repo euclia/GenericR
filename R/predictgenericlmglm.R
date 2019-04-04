@@ -2,27 +2,30 @@
 #' @param dataset
 #' @param rawModel
 #' @param additionalInfo
-
-
+#'
+req <- jsonlite::fromJSON('/Users/pantelispanka/Desktop/pred.json')
+rawModel <- req$rawModel
+dataset = req$dataset
+additionalInfo = req$additionalInfo
 predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
-  feat.names <- dataset$features$names
-  # Convert names from a factor list to a vector of characters
-  feat.names <- as.vector(unlist(lapply(feat.names, as.character)))
+  feat.names <- dataset$features$name
   # Create a dataframe that includes the feature key and the corresponding name
-  key.match <- data.frame(cbind(feat.keys, feat.names), stringAsFactors = FALSE)
-  
+  key.match <- data.frame(cbind(feat.keys, feat.names))
+  key.match[] <- lapply(key.match, as.character)
+
+
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
- 
+
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
-    feval <- dataset$dataEntry$values[i][,1]
+    feval <- dataset$dataEntry$values[key][,1]
     # Name the column with the corresponding name that is connected with the key
-    df[key.match[key.match$feat.keys == i, 2]] <- feval
+    df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
   # Unserialize the model
   mod <- unserialize(base64_dec(rawModel))
