@@ -1,5 +1,5 @@
 predict.pbpk <- function(dataset, rawModel, additionalInfo){
-  
+  # Get the number of compartments of the PBPK model
   n_comp <- length(additionalInfo$predictedFeatures) - 1
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
@@ -19,34 +19,45 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
-  
+ 
+  # Unserialize the ODEs and the covariate model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   covmodel <- mod$COVMODEL
   odemodel <- mod$ODEMODEL
-
+  # Get the names of compartments in the same order as represented by the ODEs
   comp  <- additionalInfo$fromUser$comp
+  # Initialize the initial concentrations
   initial_concentration <- rep(0,length(comp)) 
   for(i in 1:length(comp)){
+    # Create a string for each compartment e.g. C0_MU
     con <- paste("C0_", comp[i], sep="")
+    # Read the corresponding initial concentration from the user dataset
     initial_concentration[i] = df[[con]]
   }
-  
-  if (covmodel != NULL){
-    cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
-    params<-c(covmodel(cov.pars), dose, t_inf)
-  } else {
-    params<-c(dose, t_inf)
-  }
-                        
+  # Get infusion time and dose        
   t_inf <- df$infusion_time
   dose <- df$dose
-  
-  sample_time <- seq(df$time.start , df$time.end, df$time.by)  # in hours
+  # If a covariate model exists
+  if (covmodel != NULL){
+    # Get the values of the covariates
+    cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
+    # Create a parameter vector including the generated physiological parameters
+    params<-c(covmodel(cov.pars), dose, t_inf)
+  } else {
+    # If no covariate model => only parameters are dose and infusion time
+    params<-c(dose, t_inf)
+  }
+
+  # Generate a time vector based on the user input
+  sample_time <- seq(df$time.start , df$time.end, df$time.by) 
+  # Integrate the ODEs using the deSolve package
   solution <- deSolve::ode(y = initial_concentration, times = sample_time, func = odemodel, parms = params)
 
   for(i in 1:dim(solution)[1]){
     prediction<- data.frame(t(solution[i,]))
+    # Name the predictions
     colnames(prediction)<- c("time", comp)
+    # Bring everything into a format that cooperates with Jaqpot
     if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
       lh_preds[[i]]<- jsonlite::unbox(prediction)
