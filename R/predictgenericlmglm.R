@@ -3,10 +3,7 @@
 #' @param rawModel
 #' @param additionalInfo
 #'
-req <- jsonlite::fromJSON('/Users/pantelispanka/Desktop/pred.json')
-rawModel <- req$rawModel
-dataset = req$dataset
-additionalInfo = req$additionalInfo
+
 predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
