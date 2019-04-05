@@ -38,7 +38,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   t_inf <- df$infusion_time
   dose <- df$dose
   # If a covariate model exists
-  if (covmodel != NULL){
+  if (!is.null(covmodel)){
     # Get the values of the covariates
     cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
     # Create a parameter vector including the generated physiological parameters
