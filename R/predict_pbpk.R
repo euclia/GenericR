@@ -26,13 +26,21 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   odemodel <- mod$ODEMODEL
   # Get the names of compartments in the same order as represented by the ODEs
   comp  <- additionalInfo$fromUser$comp
-  # Initialize the initial concentrations
+  # Get the input compartment
+  incomp <- additionalInfo$fromUser$incomp  
+  # Calculate the initial concentrations
   initial_concentration <- rep(0,length(comp)) 
   for(i in 1:length(comp)){
     # Create a string for each compartment e.g. C0_MU
-    con <- paste("C0_", comp[i], sep="")
+    con <- paste("init_", comp[i], sep="")
     # Read the corresponding initial concentration from the user dataset
     initial_concentration[i] = df[[con]]
+    # If the dose is non zero but t_inf is zero then we have to insert 
+    # instantaneously the whole dose to the initial concentration of the 
+    # entry compartment
+    if ((comp[i] == incomp) && (dose != 0) && (t_inf == 0)){
+       initial_concentration[i] = dose
+    }
   }
   # Get infusion time and dose        
   t_inf <- df$infusion_time
