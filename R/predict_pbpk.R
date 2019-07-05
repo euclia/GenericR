@@ -31,7 +31,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Calculate the initial concentrations
   initial_concentration <- rep(0,length(comp)) 
   for(i in 1:length(comp)){
-    # Create a string for each compartment e.g. C0_MU
+    # Create a string for each compartment e.g. init_MU
     con <- paste("init_", comp[i], sep="")
     # Read the corresponding initial concentration from the user dataset
     initial_concentration[i] = df[[con]]
