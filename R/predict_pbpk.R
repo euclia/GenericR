@@ -1,4 +1,9 @@
 predict.pbpk <- function(dataset, rawModel, additionalInfo){
+
+  ###########################################
+  ### Create input vector from Jaqpot format
+  ##########################################
+
   # Get the number of compartments of the PBPK model
   n_comp <- length(additionalInfo$predictedFeatures) - 1
   # Get feature keys (a key number that points to the url)
@@ -20,6 +25,11 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
 
+  ####################################
+  ### Continue with prediction process
+  ####################################
+
+
   # Unserialize the ODEs and the covariate model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   # Extract function for parameter creation
@@ -29,51 +39,34 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Extract function for event creation
   create.events <- mod$create.inits
   # Extract custom function
-  create.inits <- mod$create.inits
+  custom.func <- mod$custom.func
   # Extract odes function
-  create.inits <- mod$create.inits
+  ode.func <- mod$ode.func
+
+
+
+  # Create parameter vector
+  params <- create.params(df)
+  # Create initial conditions
+  inits <- create.inits(params)
+  # Create events
+  events <- create.events(params)
+
 
   # Get the names of compartments in the same order as represented by the ODEs
-  comp  <- additionalInfo$fromUser$comp
-  # Get the input compartment
-  incomp <- additionalInfo$fromUser$incomp
-  # Calculate the initial concentrations
-  initial_concentration <- rep(0,length(comp))
-  for(i in 1:length(comp)){
-    # Create a string for each compartment e.g. init_MU
-    con <- paste("init_", comp[i], sep="")
-    # Read the corresponding initial concentration from the user dataset
-    initial_concentration[i] = df[[con]]
-    # If the dose is non zero but t_inf is zero then we have to insert
-    # instantaneously the whole dose to the initial concentration of the
-    # entry compartment
-    if ((comp[i] == incomp) && (dose != 0) && (t_inf == 0)){
-       initial_concentration[i] = dose
-    }
-  }
-  # Get infusion time and dose
-  t_inf <- df$infusion_time
-  dose <- df$dose
-  # If a covariate model exists
-  if (!is.null(covmodel)){
-    # Get the values of the covariates
-    cov.pars  <- sapply(additionalInfo$fromUser$cov, function(x) df[[x]])
-    # Create a parameter vector including the generated physiological parameters
-    params<-c(covmodel(cov.pars), dose, t_inf)
-  } else {
-    # If no covariate model => only parameters are dose and infusion time
-    params<-c(dose, t_inf)
-  }
+  ###comp  <- additionalInfo$fromUser$comp
+
 
   # Generate a time vector based on the user input
-  sample_time <- seq(df$time.start , df$time.end, df$time.by)
+  sample_time <- seq(df$sim.start , df$sim.end, df$sim.step)
   # Integrate the ODEs using the deSolve package
-  solution <- deSolve::ode(y = initial_concentration, times = sample_time, func = odemodel, parms = params)
+  solution <- deSolve::ode(times = sample_time,  func = odes, y = inits, parms = params,
+                           custom.func = custom.func, method="lsodes",  events = events)
 
   for(i in 1:dim(solution)[1]){
-    prediction<- data.frame(t(solution[i,]))
+  ###  prediction<- data.frame(t(solution[i,]))
     # Name the predictions
-    colnames(prediction)<- c("time", comp)
+  ###  colnames(prediction)<- c("time", comp)
     # Bring everything into a format that cooperates with Jaqpot
     if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
