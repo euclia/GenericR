@@ -64,7 +64,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
                            custom.func = custom.func, method="lsodes",  events = events)
 
   for(i in 1:dim(solution)[1]){
-  ###  prediction<- data.frame(t(solution[i,]))
+    prediction<- data.frame(t(solution[i,]))
     # Name the predictions
   ###  colnames(prediction)<- c("time", comp)
     # Bring everything into a format that cooperates with Jaqpot
