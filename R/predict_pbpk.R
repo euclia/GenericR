@@ -59,9 +59,16 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
 
   # Generate a time vector based on the user input
   sample_time <- seq(df$sim.start , df$sim.end, df$sim.step)
+  if (!(df$solver %in%  c( "lsoda", "lsode", "lsodes", "lsodar", "vode","daspk", "bdf",
+                           "adams", "impAdams", "radau") ) ){
+    solver <- "lsodes"
+    ## TODO : create correpsonding error message
+  }else{
+    solver <- df$solver
+  }
   # Integrate the ODEs using the deSolve package
   solution <- deSolve::ode(times = sample_time,  func = odes, y = inits, parms = params,
-                           custom.func = custom.func, method="lsodes",  events = events)
+                           custom.func = custom.func, method = solver,  events = events)
 
   for(i in 1:dim(solution)[1]){
     prediction<- data.frame(t(solution[i,]))
