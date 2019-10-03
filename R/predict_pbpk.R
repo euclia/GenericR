@@ -12,37 +12,46 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
-  
+
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
     feval <- dataset$dataEntry$values[key][,1]
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
- 
+
   # Unserialize the ODEs and the covariate model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
-  covmodel <- mod$COVMODEL
-  odemodel <- mod$ODEMODEL
+  # Extract function for parameter creation
+  create.params <- mod$create.params
+  # Extract function for initial conditions of odes creation
+  create.inits <- mod$create.inits
+  # Extract function for event creation
+  create.events <- mod$create.inits
+  # Extract custom function
+  create.inits <- mod$create.inits
+  # Extract odes function
+  create.inits <- mod$create.inits
+
   # Get the names of compartments in the same order as represented by the ODEs
   comp  <- additionalInfo$fromUser$comp
   # Get the input compartment
-  incomp <- additionalInfo$fromUser$incomp  
+  incomp <- additionalInfo$fromUser$incomp
   # Calculate the initial concentrations
-  initial_concentration <- rep(0,length(comp)) 
+  initial_concentration <- rep(0,length(comp))
   for(i in 1:length(comp)){
     # Create a string for each compartment e.g. init_MU
     con <- paste("init_", comp[i], sep="")
     # Read the corresponding initial concentration from the user dataset
     initial_concentration[i] = df[[con]]
-    # If the dose is non zero but t_inf is zero then we have to insert 
-    # instantaneously the whole dose to the initial concentration of the 
+    # If the dose is non zero but t_inf is zero then we have to insert
+    # instantaneously the whole dose to the initial concentration of the
     # entry compartment
     if ((comp[i] == incomp) && (dose != 0) && (t_inf == 0)){
        initial_concentration[i] = dose
     }
   }
-  # Get infusion time and dose        
+  # Get infusion time and dose
   t_inf <- df$infusion_time
   dose <- df$dose
   # If a covariate model exists
@@ -57,7 +66,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   }
 
   # Generate a time vector based on the user input
-  sample_time <- seq(df$time.start , df$time.end, df$time.by) 
+  sample_time <- seq(df$time.start , df$time.end, df$time.by)
   # Integrate the ODEs using the deSolve package
   solution <- deSolve::ode(y = initial_concentration, times = sample_time, func = odemodel, parms = params)
 
@@ -72,6 +81,6 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     }
   }
   datpred <-list(predictions=lh_preds)
-  
+
   return(datpred)
 }
