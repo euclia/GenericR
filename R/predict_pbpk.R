@@ -37,7 +37,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Extract function for initial conditions of odes creation
   create.inits <- mod$create.inits
   # Extract function for event creation
-  create.events <- mod$create.inits
+  create.events <- mod$create.events
   # Extract custom function
   custom.func <- mod$custom.func
   # Extract odes function
