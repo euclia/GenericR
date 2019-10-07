@@ -67,7 +67,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     solver <- df$solver
   }
   # Integrate the ODEs using the deSolve package
-  solution <- deSolve::ode(times = sample_time,  func = odes, y = inits, parms = params,
+  solution <- deSolve::ode(times = sample_time,  func = ode.func, y = inits, parms = params,
                            custom.func = custom.func, method = solver,  events = events)
 
   for(i in 1:dim(solution)[1]){
