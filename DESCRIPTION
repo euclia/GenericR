@@ -8,5 +8,5 @@ Description: GenericR server
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
-Depends: jsonlite
+RoxygenNote: 6.1.1
+Depends: jsonlite, deSolve
