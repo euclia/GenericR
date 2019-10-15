@@ -65,7 +65,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
 
 
   # Generate a time vector based on the user input
-  sample_time <- seq(df$sim.start , df$sim.end, df$sim.step)
+  sample_time <- seq(data.feats$sim.start , data.feats$sim.end, data.feats$sim.step)
 
   # Integrate the ODEs using the deSolve package
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
