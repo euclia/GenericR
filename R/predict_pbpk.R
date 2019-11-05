@@ -72,6 +72,10 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
                            custom.func = custom.func, method = ode.method,  events = events), extra.args))
 
   for(i in 1:dim(solution)[1]){
+    ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
+     if(is.nan(solution[i,j])){
+        solution[i,j] <- 0
+    } 
     prediction<- data.frame(t(solution[i,]))
     # Name the predictions
   ###  colnames(prediction)<- c("time", comp)
