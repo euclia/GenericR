@@ -69,18 +69,22 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
 
   # Integrate the ODEs using the deSolve package
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
-                           custom.func = custom.func, method = ode.method,  events = events), extra.args))
+                                           custom.func = custom.func, method = ode.method,  events = events), extra.args))
+  # Keep only the output dictated by the model uploader through predicted.feats
+  predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
+  for (i in 1:length(predicted.feats)){
+    predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
+  }
+  solution_tr <- solution[,predicted.feats[1:10]]
 
-  for(i in 1:dim(solution)[1]){
+  for(i in 1:dim(solution_tr)[1]){
     ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
-      for(j in 1:dim(solution)[2]){
-          if(is.nan(solution[i,j])){
-              solution[i,j] <- 0
-          } 
-       }
-    prediction<- data.frame(t(solution[i,]))
-    # Name the predictions
-  ###  colnames(prediction)<- c("time", comp)
+    for(j in 1:dim(solution_tr)[2]){
+      if(is.nan(solution_tr[i,j])){
+        solution_tr[i,j] <- 0
+      }
+    }
+    prediction<- data.frame(t(solution_tr[i,]))
     # Bring everything into a format that cooperates with Jaqpot
     if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
