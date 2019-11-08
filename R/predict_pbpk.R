@@ -75,7 +75,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   for (i in 1:length(predicted.feats)){
     predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
   }
-  solution_tr <- solution[,predicted.feats[1:10]]
+  solution_tr <- solution[,predicted.feats]
 
   for(i in 1:dim(solution_tr)[1]){
     ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
