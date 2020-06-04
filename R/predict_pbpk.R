@@ -75,7 +75,12 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   for (i in 1:length(predicted.feats)){
     predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
   }
+  ## IMPORTANT!!! Here if predicted.feats don't match with the solution names an error is flagged. A code resolving this
+  # issue should be inserted in the future and clarify this in the manual for model uploaders!!!!!!
   solution_tr <- solution[,predicted.feats]
+
+  #Select only the rows that correspond to the simulation time vector provided by the user
+  solution_tr <- solution_tr[solution_tr[,1] %in% sample_time,]
 
   for(i in 1:dim(solution_tr)[1]){
     ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
