@@ -3,7 +3,7 @@ FROM opencpu/base
 LABEL Pantelis Karatzas <pantelispanka@gmail.com>
 RUN apt-get -y install libxml2-dev libcurl4-openssl-dev
 
-RUN R -e "install.packages(c('RCurl', 'jsonlite', 'deSolve'), repos='http://cran.cc.uoc.gr/mirrors/CRAN/')"
+RUN R -e "install.packages(c('RCurl', 'jsonlite', 'deSolve', 'rpart', 'party'), repos='http://cran.cc.uoc.gr/mirrors/CRAN/')"
 COPY GenericR_1.1.0.tar.gz /packages/
 USER root
 RUN R CMD INSTALL /packages/GenericR_1.1.0.tar.gz --library=/usr/local/lib/R/site-library

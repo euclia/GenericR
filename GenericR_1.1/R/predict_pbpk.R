@@ -16,14 +16,23 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   key.match[] <- lapply(key.match, as.character)
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
-  df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
+  data.feats <- list()
 
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
     feval <- dataset$dataEntry$values[key][,1]
     # Name the column with the corresponding name that is connected with the key
-    df[key.match[key.match$feat.keys == key, 2]] <- feval
+    data.feats[key.match[key.match$feat.keys == key, 2]] <- feval
   }
+
+  # Check if the model includes any ellipses arguments (...), which the model creator
+  # uses to define parameters of the solver
+  ode.method <- additionalInfo$fromUser$method
+  if (!(ode.method %in% c("lsoda", "lsode", "lsodes", "lsodar", "vode", "daspk","euler", "rk4", "ode23",
+                          "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
+    ode.method <- "lsodes"
+  }
+  extra.args <- additionalInfo$fromUser$extra.args
 
   ####################################
   ### Continue with prediction process
@@ -37,16 +46,14 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Extract function for initial conditions of odes creation
   create.inits <- mod$create.inits
   # Extract function for event creation
-  create.events <- mod$create.inits
+  create.events <- mod$create.events
   # Extract custom function
   custom.func <- mod$custom.func
   # Extract odes function
   ode.func <- mod$ode.func
 
-
-
   # Create parameter vector
-  params <- create.params(df)
+  params <- create.params(data.feats)
   # Create initial conditions
   inits <- create.inits(params)
   # Create events
@@ -58,22 +65,26 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
 
 
   # Generate a time vector based on the user input
-  sample_time <- seq(df$sim.start , df$sim.end, df$sim.step)
-  if (!(df$solver %in%  c( "lsoda", "lsode", "lsodes", "lsodar", "vode","daspk", "bdf",
-                           "adams", "impAdams", "radau") ) ){
-    solver <- "lsodes"
-    ## TODO : create correpsonding error message
-  }else{
-    solver <- df$solver
-  }
-  # Integrate the ODEs using the deSolve package
-  solution <- deSolve::ode(times = sample_time,  func = ode.func, y = inits, parms = params,
-                           custom.func = custom.func, method = solver,  events = events)
+  sample_time <- seq(data.feats$sim.start , data.feats$sim.end, data.feats$sim.step)
 
-  for(i in 1:dim(solution)[1]){
-    prediction<- data.frame(t(solution[i,]))
-    # Name the predictions
-  ###  colnames(prediction)<- c("time", comp)
+  # Integrate the ODEs using the deSolve package
+  solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
+                                           custom.func = custom.func, method = ode.method,  events = events), extra.args))
+  # Keep only the output dictated by the model uploader through predicted.feats
+  predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
+  for (i in 1:length(predicted.feats)){
+    predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
+  }
+  solution_tr <- solution[,predicted.feats]
+
+  for(i in 1:dim(solution_tr)[1]){
+    ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
+    for(j in 1:dim(solution_tr)[2]){
+      if(is.nan(solution_tr[i,j])){
+        solution_tr[i,j] <- 0
+      }
+    }
+    prediction<- data.frame(t(solution_tr[i,]))
     # Bring everything into a format that cooperates with Jaqpot
     if(i==1){lh_preds<- list(jsonlite::unbox(prediction))
     }else{
