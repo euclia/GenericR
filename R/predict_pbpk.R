@@ -70,6 +70,10 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Integrate the ODEs using the deSolve package
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
                                            custom.func = custom.func, method = ode.method,  events = events), extra.args))
+
+  #Select only the rows that correspond to the simulation time vector provided by the user
+  solution <- solution[solution[,1] %in% sample_time,]
+
   # Keep only the output dictated by the model uploader through predicted.feats
   predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
   for (i in 1:length(predicted.feats)){
@@ -78,9 +82,6 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   ## IMPORTANT!!! Here if predicted.feats don't match with the solution names an error is flagged. A code resolving this
   # issue should be inserted in the future and clarify this in the manual for model uploaders!!!!!!
   solution_tr <- solution[,predicted.feats]
-
-  #Select only the rows that correspond to the simulation time vector provided by the user
-  solution_tr <- solution_tr[solution_tr[,1] %in% sample_time,]
 
   for(i in 1:dim(solution_tr)[1]){
     ###### The following is a clumsy solution to the following problem:jsonlite doesnt know how to convert nan values
