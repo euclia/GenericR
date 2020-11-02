@@ -4,7 +4,7 @@
 #' @param additionalInfo
 #'
 
-jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
+jaqpot.predict.tree <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
