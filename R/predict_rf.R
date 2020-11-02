@@ -4,7 +4,7 @@
 #' @param additionalInfo
 #'
 
-jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
+jaqpot.predict.randomForest <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
@@ -24,6 +24,7 @@ jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
   # Unserialize the model
+  #decoded <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   # Extract the predicted value names
@@ -42,3 +43,7 @@ jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   datpred <-list(predictions=lh_preds)
   return(datpred)
 }
+
+
+
+

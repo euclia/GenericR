@@ -3,8 +3,7 @@
 #' @param rawModel
 #' @param additionalInfo
 #'
-
-jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
+jaqpot.predict.gbm <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
@@ -30,7 +29,7 @@ jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
-  predictions <- predict(model, df)
+  predictions <- gbm::predict.gbm(model, df, n.trees = model$n.trees)
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat
