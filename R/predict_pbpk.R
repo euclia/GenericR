@@ -70,7 +70,8 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   # Integrate the ODEs using the deSolve package
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
                                            custom.func = custom.func, method = ode.method,  events = events), extra.args))
-
+  # Convert output from float to scientific notation
+  solution <- formatC(solution, format = "e", digits = 3)
   #The following chunk of code was deleted because  it produces misleading plots
   #Select only the rows that correspond to the simulation time vector provided by the user
   #solution <- solution[solution[,1] %in% sample_time,]
