@@ -30,6 +30,12 @@ jaqpot.predict.gbm <- function(dataset, rawModel, additionalInfo){
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
   predictions <- gbm::predict.gbm(model, df, n.trees = model$n.trees)
+  classes <- model$num.classes
+  response_name <- model$response.name
+  if(classes > 1){
+    predictions <- colnames(predictions)[apply(predictions, 1, which.max)]
+  }
+
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat

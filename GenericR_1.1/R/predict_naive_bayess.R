@@ -3,7 +3,8 @@
 #' @param rawModel
 #' @param additionalInfo
 #'
-jaqpot.predict.gbm <- function(dataset, rawModel, additionalInfo){
+
+jaqpot.predict.naivebayess <- function(dataset, rawModel, additionalInfo){
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
@@ -23,19 +24,14 @@ jaqpot.predict.gbm <- function(dataset, rawModel, additionalInfo){
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
   # Unserialize the model
+  #decoded <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
-  predictions <- gbm::predict.gbm(model, df, n.trees = model$n.trees)
-  classes <- model$num.classes
-  response_name <- model$response.name
-  if(classes > 1){
-    predictions <- colnames(predictions)[apply(predictions, 1, which.max)]
-  }
-
+  predictions <- predict(model, df)
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat
@@ -47,3 +43,7 @@ jaqpot.predict.gbm <- function(dataset, rawModel, additionalInfo){
   datpred <-list(predictions=lh_preds)
   return(datpred)
 }
+
+
+
+
