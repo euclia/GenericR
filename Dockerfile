@@ -8,6 +8,6 @@ RUN R -e "install.packages(c('RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmn
 COPY GenericR_1.1.2.tar.gz /packages/
 USER root
 
-RUN R CMD INSTALL /packages/GenericR_1.1.1.tar.gz --library=/usr/local/lib/R/site-library
+RUN R CMD INSTALL /packages/GenericR_1.1.2.tar.gz --library=/usr/local/lib/R/site-library
 
 CMD /usr/sbin/apache2ctl -D FOREGROUND
