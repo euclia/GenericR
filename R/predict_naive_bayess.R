@@ -27,6 +27,8 @@ jaqpot.predict.naivebayess <- function(dataset, rawModel, additionalInfo){
   #decoded <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
+
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
