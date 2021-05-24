@@ -23,9 +23,20 @@ jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
+
   # Unserialize the model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
+
+  # Retrive the original classes of the dataset
+  for (i in 1:dim(df)[2]){
+    #Retrieve levels of factor
+    if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+      levels(colnames(df)[i]) <- model$xlevels[colnames(df)[i]]
+      df[,i] <- as.factor(df[,i])
+    }
+  }
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
