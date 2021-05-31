@@ -25,6 +25,22 @@ jaqpot.predict.svm <- function(dataset, rawModel, additionalInfo){
   # Unserialize the model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
+
+  # Retrive the original classes of the dataset
+  for (i in 1:dim(df)[2]){
+    #Retrieve levels of factor
+    if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+      # convert to factor
+      df[,i] <- as.factor(df[,i])
+      # Identify which are the dummy variables of the dataset
+      extra_names <- setdiff(colnames(model$SV), colnames(df))
+      # identify which dummy variables correspond to the factor at hand
+      where <- grep(colnames(df)[i], extra_names)
+      # Remove the colname from the dummy vars to retrieve the factor levels
+      attributes(df[,i])$levels  <- sub(colnames(df)[i], "", extra_names[where])
+    }
+  }
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
