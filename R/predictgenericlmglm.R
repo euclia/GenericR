@@ -32,8 +32,8 @@ jaqpot.predict.base.lm.glm <- function(dataset, rawModel, additionalInfo){
   for (i in 1:dim(df)[2]){
     #Retrieve levels of factor
     if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
-      levels(colnames(df)[i]) <- model$xlevels[colnames(df)[i]]
       df[,i] <- as.factor(df[,i])
+      attributes(df[,i])$levels  <- model$xlevels[colnames(df)[i]]
     }
   }
 

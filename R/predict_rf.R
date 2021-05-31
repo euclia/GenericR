@@ -27,6 +27,18 @@ jaqpot.predict.randomForest <- function(dataset, rawModel, additionalInfo){
   #decoded <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
+
+
+  # Retrive the original classes of the dataset
+  for (i in 1:dim(df)[2]){
+    #Retrieve levels of factor
+    if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+      df[,i] <- as.factor(df[,i])
+      attributes(df[,i])$levels <- model$forest$xlevels[colnames(df)[i]][[1]]
+    }
+  }
+
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
