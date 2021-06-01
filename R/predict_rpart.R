@@ -33,6 +33,7 @@ jaqpot.predict.rpart <- function(dataset, rawModel, additionalInfo){
     #Retrieve levels of factor
     if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
       df[,i] <- as.factor(df[,i])
+      attributes(df[,i])$levels <- attributes(model)$xlevels[colnames(df)[i]][[1]]
     }
   }
 
