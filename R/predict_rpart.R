@@ -28,7 +28,7 @@ jaqpot.predict.rpart <- function(dataset, rawModel, additionalInfo){
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
 
-  # Retrive the original classes of the dataset
+  # Retrive the original classes of the dataset's categorical vars
   for (i in 1:dim(df)[2]){
     #Retrieve levels of factor
     if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){

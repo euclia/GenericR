@@ -26,11 +26,34 @@ jaqpot.predict.tree.class <- function(dataset, rawModel, additionalInfo){
   # Unserialize the model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
+
+  # Retrive the original classes of the dataset's categorical vars
+  for (i in 1:dim(df)[2]){
+    #Retrieve levels of factor
+    if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+      df[,i] <- as.factor(df[,i])
+      attributes(df[,i])$levels <- attributes(model)$xlevels[colnames(df)[i]][[1]]
+    }
+  }
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
-  predictions <- predict(model, df, type="class")
+
+  predictions_raw <- predict(model, df)#, type="class")
+  # In classification it returns probabilities for each class unless "type = class" is provided. To fix this in a unified way, we use
+  # the following trick
+  if (!is.null(dim(predictions_raw))){
+    if(dim(predictions_raw)[2] > attr(model$terms,"response")){
+      predictions <- colnames(predictions_raw)[apply(predictions_raw,1,which.max)]
+    }else{
+      predictions <- predictions_raw
+    }
+  }else{
+    predictions <- predictions_raw
+  }
+
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat
