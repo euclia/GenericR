@@ -16,7 +16,7 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
-  
+
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
     feval <- dataset$dataEntry$values[key][,1]
@@ -27,31 +27,34 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   preprocess <- mod$PREPROCESS
-  
-  # Retrive the original classes of the dataset's categorical vars
-  for (i in 1:dim(df)[2]){
-    #Retrieve levels of factor
-    if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
-      df[,i] <- as.factor(df[,i])
-      attributes(df[,i])$levels <- model$xlevels[colnames(df)[i]][[1]]
-    }
-  }
-  
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
-  
+
   # If there is a preprocess stage apply it, else just predict
   if(!is.null(preprocess)){
-     preprocessData <- predict(preprocess, df)
-     predictions <- predict(model, preprocessData)
-     
+     for (i in 1:length(preprocess)){
+       preprocess.method <- preprocess[[i]]
+       preprocessData <- predict(preprocess.method, df)
+       df <- preprocessData
+     }
+    # Retrive the original classes of the dataset's categorical vars
+    for (i in 1:dim(df)[2]){
+      #Retrieve levels of factor
+      if( attr(model$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+        df[,i] <- as.factor(df[,i])
+        attributes(df[,i])$levels <- model$xlevels[colnames(df)[i]][[1]]
+      }
+    }
+     predictions <- predict(model, df)
+
   }else{
-    predictions <- predict(model, df)
-    
+     predictions <- predict(model, df)
+
   }
-  
+
   for(i in 1:length(predictions)){
     prediction<- data.frame(predictions[i])
     colnames(prediction)<- predFeat
