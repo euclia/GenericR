@@ -23,10 +23,13 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
+
   # Unserialize the model
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   preprocess <- mod$PREPROCESS
+  extra.args <- mod$extra.args[[1]]
+
 
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
@@ -53,6 +56,10 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   }else{
      predictions <- predict(model, df)
 
+  }
+
+  if (length(extra.args)!= 0){
+    predictions <- extra.args(predictions)
   }
 
   for(i in 1:length(predictions)){
