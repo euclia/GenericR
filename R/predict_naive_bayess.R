@@ -23,11 +23,32 @@ jaqpot.predict.naivebayess <- function(dataset, rawModel, additionalInfo){
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
+  # Convert "NA" to NA
+  for (i in 1:dim(df)[1]){
+    for (j in 1:dim(df)[2]){
+      if(!is.na(df[i,j])){
+        if(df[i,j] == "NA"){
+          df[i,j] <- NA
+        }
+      }
+    }
+  }
+
   # Unserialize the model
   #decoded <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
-
+  # Replace NAs
+  replace <- additionalInfo$fromUser$replace
+  if(!is.null(replace)){
+    for (i in 1:dim(df)[1]){
+      for (j in 1:dim(df)[2]){
+        if(is.na(df[i,j])){
+          df[i,j] <- replace
+        }
+      }
+    }
+  }
 
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]

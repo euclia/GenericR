@@ -29,6 +29,18 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
 
+  # Convert "NA" to NA
+  for (i in 1:dim(df)[1]){
+    for (j in 1:dim(df)[2]){
+      if(!is.na(df[i,j])){
+        if(df[i,j] == "NA"){
+          df[i,j] <- NA
+        }
+      }
+    }
+  }
+
+
   # Extract the predicted value names
   predFeat <- additionalInfo$predictedFeatures[1][[1]]
   # Make the prediction using the model and the new data
@@ -43,13 +55,36 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   model <- mod$MODEL
   preprocess <- mod$PREPROCESS
   ensemble <- mod$ENSEMBLE
-  if (is.null(mod$extra.args)){
+  if (length(mod$extra.args)==1){
     extra.args <- mod$extra.args[[1]]
+  }else{
+    extra.args <- NULL
   }
-
+  # Replace NAs
+  replace <- additionalInfo$fromUser$replace
+  if(!is.null(replace)){
+    #Convert character to numeric
+    if(!is.na(as.numeric(replace[2]))){
+      replace.value <- as.numeric(replace[2])
+    }else{
+      replace.value <- replace[2]
+    }
+   }
   ####################
   ## Preprocessing ##
   ####################
+  # Do the NA substitution before preprocessing, if "before" is provided by the user
+  if(!is.null(replace)){
+   if(replace[1] == "before"){
+      for (i in 1:dim(df)[1]){
+        for (j in 1:dim(df)[2]){
+          if(is.na(df[i,j])){
+            df[i,j] <- replace.value
+          }
+        }
+      }
+   }
+  }
 
   # If it's ensemble, there are multiple models, so use one for getting the categorical variables
   if(!is.null(ensemble)){
@@ -71,6 +106,19 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
         df[,i] <- as.factor(df[,i])
         attributes(df[,i])$levels <- ModelForNames$xlevels[colnames(df)[i]][[1]]
       }
+    }
+  }
+
+  # Do the NA substitution after preprocessing, if "after" is provided by the user
+  if(!is.null(replace)){
+    if(replace[1] == "after"){
+        for (i in 1:dim(df)[1]){
+          for (j in 1:dim(df)[2]){
+            if(is.na(df[i,j])){
+              df[i,j] <- replace.value
+            }
+          }
+        }
     }
   }
 
@@ -112,7 +160,7 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   }
 
   # Not offered to users (custom detransformation)
-  if (length(extra.args)!= 0){
+  if (!is.null(extra.args)){
     predictions <- extra.args(predictions)
   }
 
