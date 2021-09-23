@@ -103,8 +103,7 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
     for (i in 1:dim(df)[2]){
       #Retrieve levels of factor
       if( attr(ModelForNames$terms, "dataClasses")[colnames(df)[i]] == "factor"){
-        df[,i] <- as.factor(df[,i])
-        attributes(df[,i])$levels <- ModelForNames$xlevels[colnames(df)[i]][[1]]
+        df[,i] <- factor(df[,i], levels = ModelForNames$xlevels[colnames(df)[i]][[1]])
       }
     }
   }
