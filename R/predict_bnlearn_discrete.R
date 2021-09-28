@@ -5,11 +5,11 @@
 #'
 
 jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
-  
+
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
-  
+
   # Get feature keys (a key number that points to the url)
   feat.keys <-  dataset$features$key
   # Get feature names (actual name)
@@ -21,14 +21,14 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
   # Initialize a dataframe with as many rows as the number of values per feature
   rows_data <- length(dataset$dataEntry$values[,2])
   df <- data.frame(matrix(0, ncol = 0, nrow = rows_data))
-  
+
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
     feval <- dataset$dataEntry$values[key][,1]
     # Name the column with the corresponding name that is connected with the key
     df[key.match[key.match$feat.keys == key, 2]] <- feval
   }
-  
+
   # Convert "NA" to NA
   for (i in 1:dim(df)[1]){
     for (j in 1:dim(df)[2]){
@@ -39,41 +39,41 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
       }
     }
   }
-  
+
   # Extract the predicted value names
   predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
   for (i in 1:length(predicted.feats)){
     predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
   }
-  
+
   ###########################
   ## Model unserialization ##
   ###########################
-  
+
   mod <- unserialize(jsonlite::base64_dec(rawModel))
   model <- mod$MODEL
   method <- additionalInfo$fromUser$predict.args$method
   n <- additionalInfo$fromUser$predict.args$n
-  
+
     # Convert categorical variables to factors
     for (i in 1:dim(df)[2]){
       varname <- names(df)[i]
       if(varname !=  "query node"){
         # Retrieve the levels from the model and convert to factor
-        df[,i] <- factor(df[,i], levels = attributes(model[[eval(expr(varname))]]$prob)$dimnames[[1]])
+        df[,i] <- factor(df[,i], levels = attributes(model[[eval(substitute(varname))]]$prob)$dimnames[[1]])
       }
    }
-  
+
   ################
   ## Prediction ##
   ################
-  
+
   #Define a parameter to store thenumber of levels of each query nodes
   level.count <- rep(NA,dim(df)[1] )
   # Get output dimensions depending on the number of levels of each query node
   for (instance in 1:dim(df)[1]){
     pred.node <- as.character(df$`query node`[instance])
-    level.count[instance] <- length(levels(df[[eval(expr(pred.node))]]))
+    level.count[instance] <- length(levels(df[[eval(substitute(pred.node))]]))
   }
 
   # Create a matrix to store the solution
@@ -97,8 +97,8 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
    #Update the row count
    where <- where+level.count[instance]
  }
-  colnames(prediction) <- c("query node", "prediction class", "probability")
-  
+  colnames(prediction) <- c("query.node", "prediction.class", "probability")
+
   ##################################
   ## Name and return predictions  ##
   ##################################
@@ -111,6 +111,6 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
     }
   }
   datpred <-list(predictions=lh_preds)
-  
+
   return(datpred)
 }
