@@ -77,9 +77,8 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
   }
 
   # Create a matrix to store the solution
-  prediction <- matrix(rep(NA,3*sum(level.count)), ncol = 3)
+  prediction <- matrix(rep(NA,3*dim(df)[1]), ncol = 3)
   # Create a variable to store the last row filled in the prediction matrix
-  where <- 1
  for (instance in 1:dim(df)[1]){
    pred.node <- as.character(df$`query node`[instance])
    #Provide only non NA values
@@ -87,15 +86,14 @@ jaqpot.predict.bnlearn.discrete <- function(dataset, rawModel, additionalInfo){
    # Remove the query node
    newdata <-  newdata[ ,-which(names(newdata) == "query node")]
    # Store in the first column the query node
-   prediction[where:(where+level.count[instance]-1),1] <- pred.node
+   prediction[instance,1] <- pred.node
    # Make the prediction
    result = attributes(predict(model, data = newdata, node= pred.node, prob = T, method = method, n = n))$prob[,1]
    # Store in the seconde column the levels
-   prediction[where:(where+level.count[instance]-1),2] <- names(result)
+   prediction[instance,2] <- paste("[", paste(names(result), collapse=", "), "]",  collapse="")
    # Store the probabilities returned by the model in the third column
-   prediction[where:(where+level.count[instance]-1),3] <- round(result,3)
+   prediction[instance,3] <-   paste("[", paste(round(result,3), collapse=", "), "]",  collapse="")
    #Update the row count
-   where <- where+level.count[instance]
  }
   colnames(prediction) <- c("query.node", "prediction.class", "probability")
 
