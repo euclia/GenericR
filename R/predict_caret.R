@@ -109,7 +109,7 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
   }
 
   # Do the NA substitution after preprocessing, if "after" is provided by the user
-  if(!is.null(replace)){
+  if(length(replace) == 2){
     if(replace[1] == "after"){
         for (i in 1:dim(df)[1]){
           for (j in 1:dim(df)[2]){
