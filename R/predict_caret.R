@@ -86,19 +86,32 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
    }
   }
 
-  # If it's ensemble, there are multiple models, so use one for getting the categorical variables
-  if(!is.null(ensemble)){
-    ModelForNames <- model[[1]]
-  }else{
-    ModelForNames <- model
+ # If there is a preprocess stage apply it, else just predict
+if(!is.null(preprocess)){
+  
+  #if there is a preprocess model that is dummy vars, then retrieve factors
+  ModelForNames = NULL
+  for(i in 1:length(preprocess)){
+    if(attributes((preprocess[[i]]))$class == "dummyVars"){
+      ModelForNames <- preprocess[[i]]
+      # Retrive the original classes of the dataset's categorical vars
+      for (i in 1:dim(df)[2]){
+        #Retrieve levels of factor
+        if( attr(ModelForNames$terms, "dataClasses")[colnames(df)[i]] == "factor"){
+          df[,i] <- factor(df[,i], levels = ModelForNames$lvls[colnames(df)[i]][[1]])
+        }
+      }
+    }
   }
-  # If there is a preprocess stage apply it, else just predict
-  if(!is.null(preprocess)){
-     for (i in 1:length(preprocess)){
-       preprocess.method <- preprocess[[i]]
-       preprocessData <- predict(preprocess.method, df)
-       df <- preprocessData
-     }
+  
+  # If there is no dummy vars, use the first model to retrieve factors 
+  if(is.null(ModelForNames)){
+    # If it's ensemble, there are multiple models, so use one for getting the categorical variables
+    if(!is.null(ensemble)){
+      ModelForNames <- model[[1]]
+    }else{
+      ModelForNames <- model
+    }
     # Retrive the original classes of the dataset's categorical vars
     for (i in 1:dim(df)[2]){
       #Retrieve levels of factor
@@ -107,6 +120,16 @@ jaqpot.predict.caret <- function(dataset, rawModel, additionalInfo){
       }
     }
   }
+  
+  #Data preprocessing
+  for (i in 1:length(preprocess)){
+    preprocess.method <- preprocess[[i]]
+    preprocessData <- predict(preprocess.method, df)
+    df <- preprocessData
+  }
+ 
+}
+
 
   # Do the NA substitution after preprocessing, if "after" is provided by the user
   if(length(replace) == 2){
