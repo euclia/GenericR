@@ -1,4 +1,4 @@
-predict.pbpk <- function(dataset, rawModel, additionalInfo){
+predict.pbpk <- function(dataset, rawModel, additionalInfo, doa){
 
   ###########################################
   ### Create input vector from Jaqpot format
