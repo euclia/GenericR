@@ -1,10 +1,9 @@
 # Use the official R base image with plumber installed
-FROM rocker/r-ver:4.1.0
-
-LABEL maintainer="Pantelis Karatzas <pantelispanka@gmail.com>, Periklis Tsiros <ptsirostsib@gmail.com>"
+FROM rstudio/plumber:latest
 
 # Install required R packages
-RUN R -e "install.packages(c('plumber', 'jsonlite', 'deSolve', 'RCurl', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', 'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret', 'neuralnet', 'bnlearn'), repos='http://cran.us.r-project.org')"
+RUN R -e "install.packages(c('plumber', 'jsonlite', 'RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', 'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret')"
+RUN R -e "install.packages(c('neuralnet', 'bnlearn'), repos='http://cran.cc.uoc.gr/mirrors/CRAN/')"
 
 # Copy the R scripts to the /app directory
 COPY R /app/R
