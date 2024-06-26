@@ -1,10 +1,7 @@
 #' predict makes a PredictionResponse for Jaqpot
-#' @param datasetDto
-#' @param rawModel
-#' @param additionalInfo
-#'
+predict.caret <- function(datasetDto, modelDto, additionalInfo, rawModel, doa) {
 
-predict.caret <- function(datasetDto, modelDto, additionalInfo, doa) {
+  print(modelDto$actualModel)
 
   #################################
   ## Input retrieval from Jaqpot ##
@@ -12,7 +9,7 @@ predict.caret <- function(datasetDto, modelDto, additionalInfo, doa) {
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
-  if (class(datasetDto$input$values[[1]]) %in% c("matrix", "array" )){
+  if (class(datasetDto$input$values[[1]]) %in% c("matrix", "array")) {
     # Initialize a dataframe with as many rows as the number of values per feature
     rows <- dim(datasetDto$input$values[[1]])[1]
     cols <- dim(datasetDto$input$values[[1]])[2]
@@ -20,12 +17,12 @@ predict.caret <- function(datasetDto, modelDto, additionalInfo, doa) {
     colnames(df) <- feat.names
 
     for (row in 1:rows) {
-      for (column in 1:cols){
-        df[row, column] <- datasetDto$input$values[[1]][row,column]
+      for (column in 1:cols) {
+        df[row, column] <- datasetDto$input$values[[1]][row, column]
       }
     }
 
-  }else{
+  } else {
     df <- data.frame(matrix(datasetDto$input$values[[1]], ncol = length(feat.names), nrow = 1))
     colnames(df) <- feat.names
   }
@@ -51,9 +48,8 @@ predict.caret <- function(datasetDto, modelDto, additionalInfo, doa) {
   ###########################
   ## Model unserialization ##
   ###########################
-  print(class(modelDto$actualModel))
 
-  decoded_data <- jsonlite::base64_dec(modelDto$actualModel[[1]])
+  decoded_data <- jsonlite::base64_dec(rawModel)
   mod <- unserialize(decoded_data)
   model <- mod$MODEL
   preprocess <- mod$PREPROCESS

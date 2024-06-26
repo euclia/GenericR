@@ -1,4 +1,4 @@
-predict.pbpk <- function(dataset, rawModel, additionalInfo, doa){
+predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto){
 
   ###########################################
   ### Create input vector from Jaqpot format
@@ -7,20 +7,20 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo, doa){
   # Get the number of compartments of the PBPK model
   n_comp <- length(additionalInfo$predictedFeatures) - 1
   # Get feature keys (a key number that points to the url)
-  feat.keys <-  dataset$features$key
+  feat.keys <-  datasetDto$features$key
   # Get feature names (actual name)
-  feat.names <- dataset$features$name
+  feat.names <- datasetDto$features$name
   # Create a dataframe that includes the feature key and the corresponding name
   key.match <- data.frame(cbind(feat.keys, feat.names))
   # Convert factor to string (feat.names is converted factor by data.frame())
   key.match[] <- lapply(key.match, as.character)
   # Initialize a dataframe with as many rows as the number of values per feature
-  rows_data <- length(dataset$dataEntry$values[,2])
+  rows_data <- length(datasetDto$dataEntry$values[,2])
   data.feats <- list()
 
   for(key in feat.keys){
     # For each key (feature) get the vector of values (of length 'row_data')
-    feval <- dataset$dataEntry$values[key][,1]
+    feval <- datasetDto$input$values[key][,1]
     # Name the column with the corresponding name that is connected with the key
     data.feats[key.match[key.match$feat.keys == key, 2]] <- feval
   }
@@ -38,9 +38,40 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo, doa){
   ### Continue with prediction process
   ####################################
 
+  cat(modelDto$actualModel, file = "actualModel.txt")
+  cat(rawModel, file = "rawModel.txt")
+  cat(rawModel[1], file = "rawModel1.txt")
+  cat(rawModel[2], file = "rawModel2.txt")
+  cat(rawModel[3], file = "rawModel3.txt")
+
+  tryCatch(
+    {
+      decoded <- jsonlite::base64_dec(rawModel)
+      mod <- unserialize(decoded)
+
+      print('success! base64')
+    },
+    error = function(cond) {
+      print('error while decoding base64 rawModel')
+      print(cond)
+    }
+  )
+    
+  tryCatch(
+      {
+        mod <- unserialize(rawModel)
+        print('success! model')
+      },
+      error = function(cond) {
+        print('error while decoding model')
+        print(cond)
+      }
+    )
+
+  decoded <- jsonlite::base64_dec(rawModel)
 
   # Unserialize the ODEs and the covariate model
-  mod <- unserialize(jsonlite::base64_dec(rawModel))
+  mod <- unserialize(decoded)
   # Extract function for parameter creation
   create.params <- mod$create.params
   # Extract function for initial conditions of odes creation

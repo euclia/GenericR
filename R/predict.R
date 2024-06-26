@@ -11,17 +11,17 @@ source("predict_caret.R")
 #* @param model
 #* @param additionalInfo
 #* @param doa
-function(dataset, model, additionalInfo, doa) {
-  predict.pbpk(dataset, model, additionalInfo, doa)
+function(model, dataset, additionalInfo, rawModel, doa) {
+  predict.pbpk(model, dataset, additionalInfo, rawModel, doa)
 }
 
 #* @post /predict.caret
 #* @param dataset
 #* @param model
 #* @param additionalInfo
-#* @param doa
-function(dataset, model, additionalInfo, doa) {
-  predict.caret(dataset, model, additionalInfo, doa)
+#* @param rawModel
+function(model, dataset, additionalInfo, rawModel, doa) {
+  predict.caret(model, dataset, additionalInfo, rawModel, doa)
 }
 
 #* @get /health
