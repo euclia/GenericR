@@ -1,11 +1,14 @@
 #' predict makes a PredictionResponse for Jaqpot
-predict.caret <- function(datasetDto, modelDto, additionalInfo, rawModel, doa) {
+predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
 
   print(modelDto$actualModel)
 
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
+
+  print(datasetDto$input$values)
+  print(datasetDto$input$values[[1]])
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
