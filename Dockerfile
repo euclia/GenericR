@@ -2,7 +2,7 @@
 FROM rstudio/plumber:latest
 
 # Install required R packages
-RUN R -e "install.packages(c('plumber', 'jsonlite', 'RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', 'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret')"
+RUN R -e "install.packages(c('RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', 'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret'), repos='http://cran.cc.uoc.gr/mirrors/CRAN/')"
 RUN R -e "install.packages(c('neuralnet', 'bnlearn'), repos='http://cran.cc.uoc.gr/mirrors/CRAN/')"
 
 # Copy the R scripts to the /app directory
