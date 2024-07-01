@@ -17,7 +17,7 @@ register_parser("parser_jaqpot", parser_jaqpot, fixed = "application/json")
 source("predict_pbpk.R")
 source("predict_caret.R")
 
-#* @post /predict.pbpk
+#* @post /predict_pbpk
 #* @param dataset
 #* @param model
 #* @param additionalInfo
@@ -27,7 +27,7 @@ function(model, dataset, additionalInfo, rawModel, doa) {
   predict.pbpk(model, dataset, additionalInfo, rawModel, doa)
 }
 
-#* @post /predict.caret
+#* @post /predict_caret
 #* @param dataset
 #* @param model
 #* @param additionalInfo
