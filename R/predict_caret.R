@@ -4,6 +4,8 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
+  additionalInfo<-  model$legacyAdditionalInfo
+  rawModel<- model$rawModel
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name

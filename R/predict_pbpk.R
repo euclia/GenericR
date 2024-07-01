@@ -4,6 +4,8 @@ predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto)
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
+  additionalInfo<-  model$legacyAdditionalInfo
+  rawModel<- model$rawModel
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
