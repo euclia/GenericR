@@ -179,12 +179,15 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
     predictions <- extra.args(predictions)
   }
 
+  # Convert output from float to scientific notation
+  predictions <- formatC(predictions, format = "e", digits = 3)
+
   ##################################
   ## Name and return predictions  ##
   ##################################
 
   for (i in 1:length(predictions)) {
-    prediction <- data.frame(   formatC(predictions[i], format = "e", digits = 3))
+    prediction <- data.frame( predictions[i] )
     colnames(prediction) <- predFeat
     if (i == 1) { lh_preds <- list(jsonlite::unbox(prediction))
     }else {
