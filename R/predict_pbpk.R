@@ -1,32 +1,35 @@
-predict.pbpk <- function(dataset, rawModel, additionalInfo){
+predict.pbpk <- function(modelDto, datasetDto, doaDto){
 
-  ###########################################
-  ### Create input vector from Jaqpot format
-  ##########################################
+  #################################
+  ## Input retrieval from Jaqpot ##
+  #################################
+  additionalInfo<-  modelDto$legacyAdditionalInfo
+  rawModel<- modelDto$rawModel
 
-  # Get the number of compartments of the PBPK model
-  n_comp <- length(additionalInfo$predictedFeatures) - 1
-  # Get feature keys (a key number that points to the url)
-  feat.keys <-  dataset$features$key
+
   # Get feature names (actual name)
-  feat.names <- dataset$features$name
-  # Create a dataframe that includes the feature key and the corresponding name
-  key.match <- data.frame(cbind(feat.keys, feat.names))
-  # Convert factor to string (feat.names is converted factor by data.frame())
-  key.match[] <- lapply(key.match, as.character)
-  # Initialize a dataframe with as many rows as the number of values per feature
-  rows_data <- length(dataset$dataEntry$values[,2])
-  data.feats <- list()
+  feat.names <- modelDto$independentFeatures$name
+  # Get feature types among FLOAT, INTEGER, STRING, TEXT, SMILES
+  feat.types <-  modelDto$independentFeatures$featureType
+  names(feat.types) <- feat.names
+  # Get input values
+  df = datasetDto$input
 
-  for(key in feat.keys){
-    # For each key (feature) get the vector of values (of length 'row_data')
-    feval <- dataset$dataEntry$values[key][,1]
-    # Name the column with the corresponding name that is connected with the key
-    data.feats[key.match[key.match$feat.keys == key, 2]] <- feval
+  # Convert data types
+  for (j in 1:dim(df)[2]){
+    if (feat.types[colnames(df)[j]] == "FLOAT"){
+      df[,j] <- as.numeric( df[,j] )
+    }else if (feat.types[colnames(df)[j]] == "INTEGER"){
+      df[,j] <- as.integer( df[,j] )
+    }else{
+      # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
+      # as the input is already in a string format
+    }
   }
 
   # Check if the model includes any ellipses arguments (...), which the model creator
   # uses to define parameters of the solver
+
   ode.method <- additionalInfo$fromUser$method
   if (!(ode.method %in% c("lsoda", "lsode", "lsodes", "lsodar", "vode", "daspk","euler", "rk4", "ode23",
                           "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
@@ -38,9 +41,10 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   ### Continue with prediction process
   ####################################
 
-
+  # Obtain decoded base 64 object
+  decoded <- jsonlite::base64_dec(rawModel)
   # Unserialize the ODEs and the covariate model
-  mod <- unserialize(jsonlite::base64_dec(rawModel))
+  mod <- unserialize(decoded)
   # Extract function for parameter creation
   create.params <- mod$create.params
   # Extract function for initial conditions of odes creation
@@ -53,7 +57,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
   ode.func <- mod$ode.func
 
   # Create parameter vector
-  params <- create.params(data.feats)
+  params <- create.params(df)
   # Create initial conditions
   inits <- create.inits(params)
   # Create events
@@ -65,7 +69,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
 
 
   # Generate a time vector based on the user input
-  sample_time <- seq(data.feats$sim.start , data.feats$sim.end, data.feats$sim.step)
+  sample_time <- seq(df$sim.start , df$sim.end, df$sim.step)
 
   # Integrate the ODEs using the deSolve package
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
@@ -100,6 +104,7 @@ predict.pbpk <- function(dataset, rawModel, additionalInfo){
     }
   }
   datpred <-list(predictions=lh_preds)
+
 
   return(datpred)
 }
