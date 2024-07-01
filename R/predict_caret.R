@@ -4,24 +4,24 @@ predict.caret <- function(modelDto, datasetDto, doa) {
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
-  additionalInfo<-  model$legacyAdditionalInfo
-  rawModel<- model$rawModel
+  additionalInfo <- modelDto$legacyAdditionalInfo
+  rawModel <- modelDto$rawModel
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
   # Get feature types among FLOAT, INTEGER, STRING, TEXT, SMILES
-  feat.types <-  modelDto$independentFeatures$featureType
+  feat.types <- modelDto$independentFeatures$featureType
   names(feat.types) <- feat.names
   # Get input values
   df = datasetDto$input
 
   # Convert data types
-  for (j in 1:dim(df)[2]){
-    if (feat.types[colnames(df)[j]] == "FLOAT"){
-      df[,j] <- as.numeric( df[,j] )
-    }else if (feat.types[colnames(df)[j]] == "INTEGER"){
-      df[,j] <- as.integer( df[,j] )
-    }else{
+  for (j in 1:dim(df)[2]) {
+    if (feat.types[colnames(df)[j]] == "FLOAT") {
+      df[, j] <- as.numeric(df[, j])
+    }else if (feat.types[colnames(df)[j]] == "INTEGER") {
+      df[, j] <- as.integer(df[, j])
+    }else {
       # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
       # as the input is already in a string format
     }
@@ -40,7 +40,7 @@ predict.caret <- function(modelDto, datasetDto, doa) {
 
 
   # Extract the predicted value names
-  predFeat <-modelDto$dependentFeatures$name
+  predFeat <- modelDto$dependentFeatures$name
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
 
@@ -62,15 +62,15 @@ predict.caret <- function(modelDto, datasetDto, doa) {
   # Replace NAs
   replace <- additionalInfo$fromUser$replace
   if (!is.null(replace)) {
-      replace.position <- replace[1,]
-      replace.value <- as.numeric(replace[2,])
+    replace.position <- replace[1,]
+    replace.value <- as.numeric(replace[2,])
   }
   ####################
   ## Preprocessing ##
   ####################
   # Do the NA substitution before preprocessing, if "before" is provided by the user
   if (!is.null(replace)) {
-    if (replace.position== "before") {
+    if (replace.position == "before") {
       for (i in 1:dim(df)[1]) {
         for (j in 1:dim(df)[2]) {
           if (is.na(df[i, j])) {
@@ -128,7 +128,7 @@ predict.caret <- function(modelDto, datasetDto, doa) {
 
   # Do the NA substitution after preprocessing, if "after" is provided by the user
   if (!is.null(replace)) {
-    if (replace.position== "after") {
+    if (replace.position == "after") {
       for (i in 1:dim(df)[1]) {
         for (j in 1:dim(df)[2]) {
           if (is.na(df[i, j])) {
@@ -189,7 +189,7 @@ predict.caret <- function(modelDto, datasetDto, doa) {
   ##################################
 
   for (i in 1:length(predictions)) {
-    prediction <- data.frame( predictions[i] )
+    prediction <- data.frame(predictions[i])
     colnames(prediction) <- predFeat
     if (i == 1) { lh_preds <- list(jsonlite::unbox(prediction))
     }else {
