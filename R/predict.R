@@ -6,7 +6,7 @@ library(plumber)
 parser_jaqpot <- function(...) {
   function(value, content_type = "application/json", ...) {
     value <- rawToChar(value)
-    value <- jsonlite::fromJSON(value, simplifyVector = FALSE)
+    value <- jsonlite::fromJSON(value, simplifyVector = TRUE)
   }
 }
 
@@ -23,8 +23,8 @@ source("predict_caret.R")
 #* @param additionalInfo
 #* @param doa
 #* @parser parser_jaqpot
-function(model, dataset, additionalInfo, rawModel, doa) {
-  predict.pbpk(model, dataset, additionalInfo, rawModel, doa)
+function(model, dataset, doa) {
+  predict.pbpk(model, dataset, doa)
 }
 
 #* @post /predict_caret
@@ -33,8 +33,8 @@ function(model, dataset, additionalInfo, rawModel, doa) {
 #* @param additionalInfo
 #* @param rawModel
 #* @parser parser_jaqpot
-function(model, dataset, additionalInfo, rawModel, doa) {
-  predict.caret(model, dataset, additionalInfo, rawModel, doa)
+function(model, dataset, doa) {
+  predict.caret(model, dataset, doa)
 }
 
 #* @get /health

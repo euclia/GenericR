@@ -1,5 +1,5 @@
 #' predict makes a PredictionResponse for Jaqpot
-predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
+predict.caret <- function(modelDto, datasetDto, doa) {
 
   #################################
   ## Input retrieval from Jaqpot ##
