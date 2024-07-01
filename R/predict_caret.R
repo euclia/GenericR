@@ -62,8 +62,8 @@ predict.caret <- function(modelDto, datasetDto, doa) {
   # Replace NAs
   replace <- additionalInfo$fromUser$replace
   if (!is.null(replace)) {
-      replace.position <- names(replace)
-      replace.value <- as.numeric(replace[[1]])
+      replace.position <- replace[1,]
+      replace.value <- as.numeric(replace[2,])
   }
   ####################
   ## Preprocessing ##
