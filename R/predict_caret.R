@@ -184,7 +184,7 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
   ##################################
 
   for (i in 1:length(predictions)) {
-    prediction <- data.frame(predictions[i])
+    prediction <- data.frame(   formatC(predictions[i], format = "e", digits = 3))
     colnames(prediction) <- predFeat
     if (i == 1) { lh_preds <- list(jsonlite::unbox(prediction))
     }else {
