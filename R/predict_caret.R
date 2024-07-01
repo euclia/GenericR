@@ -5,27 +5,24 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
   ## Input retrieval from Jaqpot ##
   #################################
 
-  print(datasetDto$input$values)
-  print(datasetDto$input$values[[1]])
-
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
-  if (class(datasetDto$input$values[[1]]) %in% c("matrix", "array")) {
-    # Initialize a dataframe with as many rows as the number of values per feature
-    rows <- dim(datasetDto$input$values[[1]])[1]
-    cols <- dim(datasetDto$input$values[[1]])[2]
-    df <- data.frame(matrix(NA, ncol = cols, nrow = rows))
-    colnames(df) <- feat.names
+  # Get feature types among FLOAT, INTEGER, STRING, TEXT, SMILES
+  feat.types <-  modelDto$independentFeatures$featureType
+  names(feat.types) <- feat.names
+  # Get input values
+  df = datasetDto$input
 
-    for (row in 1:rows) {
-      for (column in 1:cols) {
-        df[row, column] <- datasetDto$input$values[[1]][row, column]
-      }
+  # Convert data types
+  for (j in 1:dim(df)[2]){
+    if (feat.types[colnames(df)[j]] == "FLOAT"){
+      df[,j] <- as.numeric( df[,j] )
+    }else if (feat.types[colnames(df)[j]] == "INTEGER"){
+      df[,j] <- as.integer( df[,j] )
+    }else{
+      # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
+      # as the input is already in a string format
     }
-
-  } else {
-    df <- data.frame(matrix(datasetDto$input$values[[1]], ncol = length(feat.names), nrow = 1))
-    colnames(df) <- feat.names
   }
 
   # Convert "NA" to NA
@@ -41,7 +38,7 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
 
 
   # Extract the predicted value names
-  predFeat <- additionalInfo$predictedFeatures[1][[1]]
+  predFeat <-modelDto$dependentFeatures$name
   # Make the prediction using the model and the new data
   # Note that the names of the dataframe must be the same with the original
 
@@ -63,19 +60,15 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
   # Replace NAs
   replace <- additionalInfo$fromUser$replace
   if (!is.null(replace)) {
-    #Convert character to numeric
-    if (!is.na(as.numeric(replace[2]))) {
-      replace.value <- as.numeric(replace[2])
-    }else {
-      replace.value <- replace[2]
-    }
+      replace.position <- names(replace)
+      replace.value <- as.numeric(replace[[1]])
   }
   ####################
   ## Preprocessing ##
   ####################
   # Do the NA substitution before preprocessing, if "before" is provided by the user
   if (!is.null(replace)) {
-    if (replace[1] == "before") {
+    if (replace.position== "before") {
       for (i in 1:dim(df)[1]) {
         for (j in 1:dim(df)[2]) {
           if (is.na(df[i, j])) {
@@ -91,14 +84,14 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
 
     #if there is a preprocess model that is dummy vars, then retrieve factors
     ModelForNames = NULL
-    for (i in 1:length(preprocess)) {
-      if (attributes((preprocess[[i]]))$class == "dummyVars") {
-        ModelForNames <- preprocess[[i]]
+    for (k in 1:length(preprocess)) {
+      if (attributes((preprocess[[k]]))$class == "dummyVars") {
+        ModelForNames <- preprocess[[k]]
         # Retrive the original classes of the dataset's categorical vars
-        for (i in 1:dim(df)[2]) {
+        for (j in 1:dim(df)[2]) {
           #Retrieve levels of factor
-          if (attr(ModelForNames$terms, "dataClasses")[colnames(df)[i]] == "factor") {
-            df[, i] <- factor(df[, i], levels = ModelForNames$lvls[colnames(df)[i]][[1]])
+          if (attr(ModelForNames$terms, "dataClasses")[colnames(df)[j]] == "factor") {
+            df[, j] <- factor(df[, j], levels = ModelForNames$lvls[colnames(df)[j]][[1]])
           }
         }
       }
@@ -113,17 +106,17 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
         ModelForNames <- model
       }
       # Retrive the original classes of the dataset's categorical vars
-      for (i in 1:dim(df)[2]) {
+      for (j in 1:dim(df)[2]) {
         #Retrieve levels of factor
-        if (attr(ModelForNames$terms, "dataClasses")[colnames(df)[i]] == "factor") {
-          df[, i] <- factor(df[, i], levels = ModelForNames$xlevels[colnames(df)[i]][[1]])
+        if (attr(ModelForNames$terms, "dataClasses")[colnames(df)[j]] == "factor") {
+          df[, j] <- factor(df[, j], levels = ModelForNames$xlevels[colnames(df)[j]][[1]])
         }
       }
     }
 
     #Data preprocessing
-    for (i in 1:length(preprocess)) {
-      preprocess.method <- preprocess[[i]]
+    for (p in 1:length(preprocess)) {
+      preprocess.method <- preprocess[[p]]
       preprocessData <- predict(preprocess.method, df)
       df <- preprocessData
     }
@@ -132,8 +125,8 @@ predict.caret <- function(modelDto, datasetDto, additionalInfo, rawModel, doa) {
 
 
   # Do the NA substitution after preprocessing, if "after" is provided by the user
-  if (length(replace) == 2) {
-    if (replace[1] == "after") {
+  if (!is.null(replace)) {
+    if (replace.position== "after") {
       for (i in 1:dim(df)[1]) {
         for (j in 1:dim(df)[2]) {
           if (is.na(df[i, j])) {

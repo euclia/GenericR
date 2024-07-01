@@ -7,22 +7,22 @@ predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto)
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
-  if (class(datasetDto$input$values[[1]]) %in% c("matrix", "array")) {
-    # Initialize a dataframe with as many rows as the number of values per feature
-    rows <- dim(datasetDto$input$values[[1]])[1]
-    cols <- dim(datasetDto$input$values[[1]])[2]
-    df <- data.frame(matrix(NA, ncol = cols, nrow = rows))
-    colnames(df) <- feat.names
+  # Get feature types among FLOAT, INTEGER, STRING, TEXT, SMILES
+  feat.types <-  modelDto$independentFeatures$featureType
+  names(feat.types) <- feat.names
+  # Get input values
+  df = datasetDto$input
 
-    for (row in 1:rows) {
-      for (column in 1:cols) {
-        df[row, column] <- datasetDto$input$values[[1]][row, column]
-      }
+  # Convert data types
+  for (j in 1:dim(df)[2]){
+    if (feat.types[colnames(df)[j]] == "FLOAT"){
+      df[,j] <- as.numeric( df[,j] )
+    }else if (feat.types[colnames(df)[j]] == "INTEGER"){
+      df[,j] <- as.integer( df[,j] )
+    }else{
+      # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
+      # as the input is already in a string format
     }
-
-  } else {
-    df <- data.frame(matrix(datasetDto$input$values[[1]], ncol = length(feat.names), nrow = 1))
-    colnames(df) <- feat.names
   }
 
   # Check if the model includes any ellipses arguments (...), which the model creator
@@ -38,8 +38,8 @@ predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto)
   ### Continue with prediction process
   ####################################
 
+  # Obtain decoded base 64 object
   decoded <- jsonlite::base64_dec(rawModel)
-
   # Unserialize the ODEs and the covariate model
   mod <- unserialize(decoded)
   # Extract function for parameter creation
@@ -53,8 +53,6 @@ predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto)
   # Extract odes function
   ode.func <- mod$ode.func
 
-  print(df$BW)
-  print(is.character(df$BW))
   # Create parameter vector
   params <- create.params(df)
   # Create initial conditions
@@ -74,7 +72,7 @@ predict.pbpk <- function(modelDto, datasetDto, additionalInfo, rawModel, doaDto)
   solution <- do.call(deSolve::ode, c(list(times = sample_time,  func = ode.func, y = inits, parms = params,
                                            custom.func = custom.func, method = ode.method,  events = events), extra.args))
   # Convert output from float to scientific notation
-  solution <- formatC(solution, format = "e", digits = 3)
+  solution <- formatC(solution, format = "fg", digits = 3)
   #The following chunk of code was deleted because  it produces misleading plots
   #Select only the rows that correspond to the simulation time vector provided by the user
   #solution <- solution[solution[,1] %in% sample_time,]
