@@ -1,7 +1,8 @@
 # R/plumber.R
 
-library(plumber)
+alive <<- TRUE
 
+library(plumber)
 
 parser_jaqpot <- function(...) {
   function(value, content_type = "application/json", ...) {
@@ -42,3 +43,12 @@ function() {
   list(status = "OK")
 }
 
+
+#* Health check. Returns "OK".
+#* @serializer text
+#* @get /health
+function() {
+  future({
+    if (!alive) stop() else "OK"
+  })
+}
