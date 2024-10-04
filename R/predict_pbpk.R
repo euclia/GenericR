@@ -17,7 +17,9 @@ predict.pbpk <- function(modelDto, datasetDto, doaDto){
 
   # Convert data types
   for (j in 1:dim(df)[2]){
-    if (feat.types[colnames(df)[j]] == "FLOAT"){
+    if(colnames(df)[j] == "jaqpotInternalId"){
+      next
+    }else if (feat.types[colnames(df)[j]] == "FLOAT"){
       df[,j] <- as.numeric( df[,j] )
     }else if (feat.types[colnames(df)[j]] == "INTEGER"){
       df[,j] <- as.integer( df[,j] )
