@@ -30,6 +30,7 @@ predict.pbpk <- function(modelDto, datasetDto, doaDto){
     }else{
       # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
       # as the input is already in a string format
+        df[[j]] <- df_init[,j]
     }
   }
   names(df) <- colnames(df_init)
