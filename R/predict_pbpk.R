@@ -13,21 +13,26 @@ predict.pbpk <- function(modelDto, datasetDto, doaDto){
   feat.types <-  modelDto$independentFeatures$featureType
   names(feat.types) <- feat.names
   # Get input values
-  df = datasetDto$input
-
+    # Get input values
+  df_init <- datasetDto$input
+  df <- list()  
+  
   # Convert data types
-  for (j in 1:dim(df)[2]){
-    if(colnames(df)[j] == "jaqpotRowId"){
-      next
-    }else if (feat.types[colnames(df)[j]] == "FLOAT"){
-      df[,j] <- as.numeric( df[,j] )
-    }else if (feat.types[colnames(df)[j]] == "INTEGER"){
-      df[,j] <- as.integer( df[,j] )
+  for (j in 1:dim(df_init)[2]){
+    if(colnames(df_init)[j] == "jaqpotRowId"){
+      df[[j]] = "jaqpotRowId"
+    }else if (feat.types[colnames(df_init)[j]] == "FLOAT"){
+      df[[j]] <- as.numeric( df_init[,j] )
+    }else if (feat.types[colnames(df_init)[j]] == "INTEGER"){
+      df[[j]] <- as.integer( df_init[,j] )
+    }else if (feat.types[colnames(df_init)[j]] == "FLOAT_ARRAY"){
+      df[[j]] <- as.numeric(df_init[,j][[1]])
     }else{
       # We don't need to do any conversion from STRING/ CATEGORICAL/ TEXT
       # as the input is already in a string format
     }
   }
+  names(df) <- colnames(df_init)
 
   # Check if the model includes any ellipses arguments (...), which the model creator
   # uses to define parameters of the solver
