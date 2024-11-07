@@ -24,8 +24,10 @@ source("predict_caret.R")
 #* @param additionalInfo
 #* @param doa
 #* @parser parser_jaqpot
-function(model, dataset, doa) {
-  predict.pbpk(model, dataset, doa)
+function(model, dataset) {
+  future_promise({
+    return(predict.pbpk(model, dataset))
+  })
 }
 
 #* @post /predict_caret
@@ -34,8 +36,11 @@ function(model, dataset, doa) {
 #* @param additionalInfo
 #* @param rawModel
 #* @parser parser_jaqpot
-function(model, dataset, doa) {
-  predict.caret(model, dataset, doa)
+function(model, dataset) {
+  future_promise({
+    return(predict.caret(model, dataset))
+  })
+
 }
 
 #* @get /health
