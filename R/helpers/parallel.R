@@ -3,7 +3,7 @@
 library(future)
 library(promises)
 
-WORKERS <- strtoi(Sys.getenv("WORKERS", 5))
+WORKERS <- strtoi(Sys.getenv("WORKERS", 3))
 
 future::plan(future::multisession(workers = WORKERS))
 
