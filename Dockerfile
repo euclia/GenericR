@@ -2,7 +2,9 @@
 FROM rstudio/plumber:latest
 
 # Install required R packages
-RUN R -e "install.packages(c('RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', 'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret', 'neuralnet', 'bnlearn'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('RCurl', 'deSolve', 'rpart', 'party', 'tree', 'glmnet', 'Iso', 'naivebayes', 'neighbr', \
+    'gbm', 'randomForest', 'e1071', 'truncnorm', 'xgboost', 'caret', 'neuralnet', 'bnlearn', 'future', 'promises'), \
+    repos='https://cloud.r-project.org/')"
 
 # Expose the port plumber will run on
 EXPOSE 8004
