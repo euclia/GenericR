@@ -19,10 +19,8 @@ source("predict_pbpk.R")
 source("predict_caret.R")
 
 #* @post /predict_pbpk
-#* @param dataset
 #* @param model
-#* @param additionalInfo
-#* @param doa
+#* @param dataset
 #* @parser parser_jaqpot
 function(model, dataset) {
   future_promise({
@@ -33,8 +31,6 @@ function(model, dataset) {
 #* @post /predict_caret
 #* @param dataset
 #* @param model
-#* @param additionalInfo
-#* @param rawModel
 #* @parser parser_jaqpot
 function(model, dataset) {
   future_promise({
