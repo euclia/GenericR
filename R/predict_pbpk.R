@@ -1,4 +1,4 @@
-predict.pbpk <- function(modelDto, datasetDto, doaDto){
+predict.pbpk <- function(modelDto, datasetDto){
 
   #################################
   ## Input retrieval from Jaqpot ##
