@@ -90,7 +90,7 @@ predict.pbpk <- function(modelDto, datasetDto){
   # Keep only the output dictated by the model uploader through predicted.feats
   predicted.feats <- rep(0,  length(modelDto$dependentFeatures))
   for (i in 1:length(predicted.feats)){
-    predicted.feats[i] <- modelDto$dependentFeatures[[i]]['key']
+    predicted.feats[i] <- modelDto$dependentFeatures[i,'key']
   }
   ## IMPORTANT!!! Here if predicted.feats don't match with the solution names an error is flagged. A code resolving this
   # issue should be inserted in the future and clarify this in the manual for model uploaders!!!!!!
