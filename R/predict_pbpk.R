@@ -3,9 +3,7 @@ predict.pbpk <- function(modelDto, datasetDto){
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
-  additionalInfo<-  modelDto$legacyAdditionalInfo
   rawModel<- modelDto$rawModel
-
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
@@ -35,9 +33,11 @@ predict.pbpk <- function(modelDto, datasetDto){
   }
   names(df) <- colnames(df_init)
 
-  # Check if the model includes any ellipses arguments (...), which the model creator
-  # uses to define parameters of the solver
-  ode.method <- additionalInfo$fromUser$method
+  if (!is.null(modelDto$rPbpkOdeSolver)) {
+    ode.method <- modelDto$rPbpkOdeSolver
+  } else {
+    ode.method <- "lsodes"
+  }
   if (!(ode.method %in% c("lsoda", "lsode", "lsodes", "lsodar", "vode", "daspk","euler", "rk4", "ode23",
                           "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
     ode.method <- "lsodes"
