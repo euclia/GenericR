@@ -42,7 +42,8 @@ predict.pbpk <- function(modelDto, datasetDto){
                           "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
     ode.method <- "lsodes"
   }
-  extra.args <- additionalInfo$fromUser$extra.args
+  extra.args <- list()
+#   extra.args <- additionalInfo$fromUser$extra.args
 
   ####################################
   ### Continue with prediction process
