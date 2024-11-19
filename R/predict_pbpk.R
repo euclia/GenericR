@@ -15,8 +15,8 @@ predict.pbpk <- function(modelDto, datasetDto){
   # Get input values
     # Get input values
   df_init <- datasetDto$input
-  df <- list()  
-  
+  df <- list()
+
   # Convert data types
   for (j in 1:dim(df_init)[2]){
     if(colnames(df_init)[j] == "jaqpotRowId"){
@@ -37,7 +37,6 @@ predict.pbpk <- function(modelDto, datasetDto){
 
   # Check if the model includes any ellipses arguments (...), which the model creator
   # uses to define parameters of the solver
-
   ode.method <- additionalInfo$fromUser$method
   if (!(ode.method %in% c("lsoda", "lsode", "lsodes", "lsodar", "vode", "daspk","euler", "rk4", "ode23",
                           "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
@@ -89,9 +88,9 @@ predict.pbpk <- function(modelDto, datasetDto){
   #solution <- solution[solution[,1] %in% sample_time,]
 
   # Keep only the output dictated by the model uploader through predicted.feats
-  predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
+  predicted.feats <- rep(0,  length(modelDto$dependentFeatures))
   for (i in 1:length(predicted.feats)){
-    predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
+    predicted.feats[i] <- modelDto$dependentFeatures[[i]]['key']
   }
   ## IMPORTANT!!! Here if predicted.feats don't match with the solution names an error is flagged. A code resolving this
   # issue should be inserted in the future and clarify this in the manual for model uploaders!!!!!!
