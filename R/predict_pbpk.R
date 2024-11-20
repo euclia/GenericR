@@ -89,7 +89,8 @@ predict.pbpk <- function(modelDto, datasetDto){
   #solution <- solution[solution[,1] %in% sample_time,]
 
   # Keep only the output dictated by the model uploader through predicted.feats
-  predicted.feats <- rep(0,  length(modelDto$dependentFeatures))
+  print(dim(modelDto$dependentFeatures)[1])
+  predicted.feats <- rep(0,  dim(modelDto$dependentFeatures)[1])
   for (i in 1:length(predicted.feats)){
     predicted.feats[i] <- modelDto$dependentFeatures[i,'key']
   }
