@@ -3,9 +3,7 @@ predict.pbpk <- function(modelDto, datasetDto){
   #################################
   ## Input retrieval from Jaqpot ##
   #################################
-  additionalInfo<-  modelDto$legacyAdditionalInfo
   rawModel<- modelDto$rawModel
-
 
   # Get feature names (actual name)
   feat.names <- modelDto$independentFeatures$name
@@ -15,12 +13,12 @@ predict.pbpk <- function(modelDto, datasetDto){
   # Get input values
     # Get input values
   df_init <- datasetDto$input
-  df <- list()  
-  
+  df <- list()
+
   # Convert data types
   for (j in 1:dim(df_init)[2]){
     if(colnames(df_init)[j] == "jaqpotRowId"){
-      df[[j]] = "jaqpotRowId"
+      df[[j]] <- "jaqpotRowId"
     }else if (feat.types[colnames(df_init)[j]] == "FLOAT"){
       df[[j]] <- as.numeric( df_init[,j] )
     }else if (feat.types[colnames(df_init)[j]] == "INTEGER"){
@@ -35,15 +33,17 @@ predict.pbpk <- function(modelDto, datasetDto){
   }
   names(df) <- colnames(df_init)
 
-  # Check if the model includes any ellipses arguments (...), which the model creator
-  # uses to define parameters of the solver
-
-  ode.method <- additionalInfo$fromUser$method
+  if (!is.null(modelDto$rPbpkOdeSolver)) {
+    ode.method <- modelDto$rPbpkOdeSolver
+  } else {
+    ode.method <- "lsodes"
+  }
   if (!(ode.method %in% c("lsoda", "lsode", "lsodes", "lsodar", "vode", "daspk","euler", "rk4", "ode23",
                           "ode45", "radau","bdf", "bdf_d", "adams", "impAdams", "impAdams_d", "iteration"))){
     ode.method <- "lsodes"
   }
-  extra.args <- additionalInfo$fromUser$extra.args
+  extra.args <- list()
+#   extra.args <- additionalInfo$fromUser$extra.args
 
   ####################################
   ### Continue with prediction process
@@ -89,9 +89,9 @@ predict.pbpk <- function(modelDto, datasetDto){
   #solution <- solution[solution[,1] %in% sample_time,]
 
   # Keep only the output dictated by the model uploader through predicted.feats
-  predicted.feats <- rep(0,  length(additionalInfo$predictedFeatures))
+  predicted.feats <- rep(0,  dim(modelDto$dependentFeatures)[1])
   for (i in 1:length(predicted.feats)){
-    predicted.feats[i] <- additionalInfo$predictedFeatures[[i]]
+    predicted.feats[i] <- modelDto$dependentFeatures[i,'key']
   }
   ## IMPORTANT!!! Here if predicted.feats don't match with the solution names an error is flagged. A code resolving this
   # issue should be inserted in the future and clarify this in the manual for model uploaders!!!!!!
