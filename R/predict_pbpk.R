@@ -18,7 +18,7 @@ predict.pbpk <- function(modelDto, datasetDto){
   # Convert data types
   for (j in 1:dim(df_init)[2]){
     if(colnames(df_init)[j] == "jaqpotRowId"){
-      df[[j]] = "jaqpotRowId"
+      df[[j]] <- "jaqpotRowId"
     }else if (feat.types[colnames(df_init)[j]] == "FLOAT"){
       df[[j]] <- as.numeric( df_init[,j] )
     }else if (feat.types[colnames(df_init)[j]] == "INTEGER"){
@@ -89,7 +89,6 @@ predict.pbpk <- function(modelDto, datasetDto){
   #solution <- solution[solution[,1] %in% sample_time,]
 
   # Keep only the output dictated by the model uploader through predicted.feats
-  print(dim(modelDto$dependentFeatures)[1])
   predicted.feats <- rep(0,  dim(modelDto$dependentFeatures)[1])
   for (i in 1:length(predicted.feats)){
     predicted.feats[i] <- modelDto$dependentFeatures[i,'key']
